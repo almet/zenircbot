@@ -25,9 +25,10 @@ for msg in sub.listen():
     if message['version'] == 1:
         if message['type'] == 'privmsg':
             text = message['data']['message']
-            match = ISSUE.match(text)
+            match = ISSUE.search(text)
             if match:
                 issue_nb = match.groups()[0] or match.groups()[1]
                 resp = requests.get(URL.format(nb=issue_nb))
-                msg = "{title} ({state}) - {html_url}".format(**resp.json)
-                zen.send_privmsg(message['data']['channel'], msg)
+		if resp.status_code == 200:
+		    msg = "{title} ({state}) - {html_url}".format(**resp.json)
+		    zen.send_privmsg(message['data']['channel'], msg)
